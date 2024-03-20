@@ -1,0 +1,130 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./rabbit/manifests/
+  - ./auth/manifests/
+  - ./questions/manifests/
+  - ./audio/manifests/
+  - ./video/manifests/
+  - ./gateway/manifests/
+
+patches:
+  - target:
+      name: audio-configmap
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: audio-configmap
+      data:
+        PLAYHT_VOICE: ${PLAYHT_VOICE}
+        AUDIO_QUEUE: ${AUDIO_QUEUE}
+        VIDEO_QUEUE: ${VIDEO_QUEUE}
+        RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+        MONGO_HOST: ${MONGO_HOST}
+        MONGO_PORT: ${MONGO_PORT}
+        MONGO_DB: ${MONGO_DB}
+        MONGO_COLLECTION: ${MONGO_COLLECTION}
+
+  - target:
+      name: audio-secret
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: audio-secret
+      stringData:
+        PLAYHT_ID: ${PLAYHT_ID}
+        PLAYHT_SECRET: ${PLAYHT_SECRET}
+
+  - target:
+      name: auth-configmap
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: auth-configmap
+      data:
+        POSTGRES_HOST: ${POSTGRES_HOST}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_NAME: ${POSTGRES_NAME}
+        POSTGRES_PORT: ${POSTGRES_PORT}
+
+  - target:
+      name: auth-secret
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: auth-secret
+      stringData:
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        AUTH_SECRET: ${AUTH_SECRET}
+
+  - target:
+      name: gateway-configmap
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: gateway-configmap
+      data:
+        AUTH_SERVICE_ADDRESS: ${AUTH_SERVICE_ADDRESS}
+        QUESTIONS_QUEUE: ${QUESTIONS_QUEUE}
+        RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+
+  - target:
+      name: questions-configmap
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: questions-configmap
+      data:
+        AUDIO_QUEUE: ${AUDIO_QUEUE}
+        QUESTIONS_QUEUE: ${QUESTIONS_QUEUE}
+        RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+        MONGO_HOST: ${MONGO_HOST}
+        MONGO_PORT: ${MONGO_PORT}
+        MONGO_DB: ${MONGO_DB}
+        MONGO_COLLECTION: ${MONGO_COLLECTION}
+
+  - target:
+      name: questions-secret
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: questions-secret
+      stringData:
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+  - target:
+      name: video-configmap
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: video-configmap
+      data:
+        VIDEO_QUEUE: ${VIDEO_QUEUE}
+        RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+        MONGO_HOST: ${MONGO_HOST}
+        MONGO_PORT: ${MONGO_PORT}
+        MONGO_DB: ${MONGO_DB}
+        MONGO_COLLECTION: ${MONGO_COLLECTION}
+
+  - target:
+      name: video-secret
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: video-secret
+      stringData:
+        CLOUDFRONT_URL: ${CLOUDFRONT_URL}
+        S3_KEY: ${S3_KEY}
+        S3_SECRET: ${S3_SECRET}
+        S3_REGION: ${S3_REGION}
+        S3_BUCKET: ${S3_BUCKET}

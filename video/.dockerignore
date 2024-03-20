@@ -1,0 +1,24 @@
+# Files and directories to ignore in Docker build context
+
+# Node.js dependencies
+node_modules/
+manifests/
+dist/
+
+.env
+
+# npm debug log
+npm-debug.log*
+
+# Yarn integrity file
+.yarn-integrity
+
+# Docker-related files
+.dockerignore
+.dockerignore.sample
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

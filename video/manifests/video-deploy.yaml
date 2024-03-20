@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video
+  labels:
+    app: video
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3
+  template:
+    metadata:
+      labels:
+        app: video
+    spec:
+      containers:
+        - name: video
+          image: saddagada1/wiki-trivia-video
+          envFrom:
+            - configMapRef:
+                name: video-configmap
+            - secretRef:
+                name: video-secret

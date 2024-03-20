@@ -1,0 +1,41 @@
+.card {
+  padding: 0rem 1.5rem;
+  backdrop-filter: blur(64px);
+  background-color: rgb(255 255 255 / 0.5);
+  font-weight: 700;
+  border-radius: 1.5rem;
+  border: 6px solid white;
+  width: 100%;
+}
+
+.logo-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.logo-text {
+  font-size: 5.5rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 0;
+}
+
+.text {
+  font-size: 2rem;
+}
+
+.topic {
+  text-align: center;
+}
+
+.highlight-answer {
+  background-color: rgb(134 239 172 / 0.8);
+  border-color: rgb(34 197 94);
+}

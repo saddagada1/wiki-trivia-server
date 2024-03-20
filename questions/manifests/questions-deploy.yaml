@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: questions
+  labels:
+    app: questions
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: questions
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: questions
+    spec:
+      containers:
+        - name: questions
+          image: saddagada1/wiki-trivia-questions
+          envFrom:
+            - configMapRef:
+                name: questions-configmap
+            - secretRef:
+                name: questions-secret
