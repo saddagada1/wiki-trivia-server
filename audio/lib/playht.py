@@ -15,6 +15,15 @@ def generate(message, collection, channel):
 
     audio = []
 
+    channel.basic_publish(
+        exchange="",
+        routing_key=os.environ.get("NOTIFICATIONS_QUEUE"),
+        body=json.dumps({"status": "Generating audio with PlayHT"}),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent
+        )
+    )
+
     try: 
         for q in questions:
             q = json.loads(q)
@@ -48,7 +57,6 @@ def generate(message, collection, channel):
         
         quiz = {
             "topic": message["topic"],
-            "userId": message["userId"],
             "questions": questions,
             "audio": audio
         }
@@ -61,6 +69,7 @@ def generate(message, collection, channel):
                 delivery_mode=pika.DeliveryMode.Persistent
             )
         )
+
         collection.update_one(message, { "$set": quiz }, upsert=True)
     except Exception as err:
         print(err)

@@ -1,44 +1,49 @@
 import logging
-import pika, os, json, wikipedia
+import os, json, wikipedia, threading, pika
 from flask import Flask, request
-from auth import validate, authorize
+from flask_socketio import SocketIO
+from flask_pymongo import PyMongo
+from flask_cors import CORS
 from lib import rabbit
 
 server = Flask(__name__)
 
 server.logger.setLevel(logging.DEBUG)
-    
-@server.route("/login", methods=["POST"])
-def login():
-    auth, err = authorize.login(request)
 
-    if err: 
-        return err
-    
-    return auth
+CORS(server, resources={r"/*": {"origins": os.environ.get("CLIENT_URL"), "supports_credentials": True}})
 
-@server.route("/signup", methods=["POST"])
-def signup():
-    auth, err = authorize.signup(request)
+socketio = SocketIO(server, cors_allowed_origins=os.environ.get("CLIENT_URL"))
 
-    if err: 
-        return err
-    
-    return auth
+server.config['MONGO_URI'] = f"mongodb://{os.environ.get("MONGO_HOST")}:{os.environ.get("MONGO_PORT")}/{os.environ.get("MONGO_DB")}"
+
+mongo = PyMongo(server)
+collection = mongo.db[os.environ.get("MONGO_COLLECTION")]
+
+status = "idle"
+
+@server.route("/videos", methods=["GET"])
+def get():
+    cursor = collection.find({}).sort('_id', -1).limit(10)
+    videos = []
+    for video in cursor:
+        video['_id'] = str(video['_id'])
+        videos.append(video)
+
+    videos_json = json.dumps(videos)
+    response_data = videos_json.encode('utf-8')
+    return {"status": status, "videos": response_data}, 200, {'Content-Type': 'application/json'}
     
 @server.route("/generate", methods=["POST"])
 def generate():
+    if status != "idle":
+        return 'server is busy', 503
+    
     data = json.loads(request.data)
     topic = data.get("topic", None)
 
     if not topic:
         return 'no topic', 401
     
-    user, err = validate.user(request)
-
-    if err: 
-        return err
-
     try:
         page_query = wikipedia.search(query=topic, results=1)[0]
 
@@ -53,25 +58,48 @@ def generate():
         }
 
         message = {
-            "user": user,
             "page": page,
             "count": data.get("count", 5)
         }
 
-        connection = rabbit.Connection()
-        channel = connection.channel()
-
-        err = rabbit.publish(channel, message, os.environ.get("QUESTIONS_QUEUE"))
+        err = rabbit.publish(message, os.environ.get("QUESTIONS_QUEUE"), False)
 
         if err: 
             server.logger.error(err)
             return 'failed to publish message', 500
         
+        rabbit.publish({"status": "Got topic from Wikipedia"}, os.environ.get("NOTIFICATIONS_QUEUE"), False)
+        
         return 'success', 200
     except Exception as err:
         server.logger.error(err)
         return 'wikipedia has never heard of it', 404
+    
+def consume_notifications():
+    def callback(__ch__, __method__, __properties__, body):
+        message = json.loads(body)
+        if status == "completed":
+            status = "idle"
+        else:
+            status = message["status"]
+        socketio.emit('notification', status)
+
+    try: 
+        connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ.get("RABBIT_MQ_HOST")))
+        channel = connection.channel()
+        channel.queue_declare(queue=os.environ.get("NOTIFICATIONS_QUEUE"), durable=True)
+
+        channel.basic_consume(queue=os.environ.get("NOTIFICATIONS_QUEUE"), on_message_callback=callback, auto_ack=True)
+
+        print('Waiting for notifications from RabbitMQ...')
+        channel.start_consuming()
+    except Exception as err:
+        server.logger.error(err)
 
 
 if __name__ == "__main__":
-    server.run(host="0.0.0.0", port=8080)
+    notifications_thread = threading.Thread(target=consume_notifications)
+    notifications_thread.daemon = True
+    notifications_thread.start()
+
+    server.run(host='0.0.0.0', port=8080)

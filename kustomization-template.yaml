@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - ./rabbit/manifests/
-  - ./auth/manifests/
   - ./questions/manifests/
   - ./audio/manifests/
   - ./video/manifests/
@@ -21,6 +20,7 @@ patches:
         PLAYHT_VOICE: ${PLAYHT_VOICE}
         AUDIO_QUEUE: ${AUDIO_QUEUE}
         VIDEO_QUEUE: ${VIDEO_QUEUE}
+        NOTIFICATIONS_QUEUE: ${NOTIFICATIONS_QUEUE}
         RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
         MONGO_HOST: ${MONGO_HOST}
         MONGO_PORT: ${MONGO_PORT}
@@ -39,30 +39,6 @@ patches:
         PLAYHT_SECRET: ${PLAYHT_SECRET}
 
   - target:
-      name: auth-configmap
-    patch: |-
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: auth-configmap
-      data:
-        POSTGRES_HOST: ${POSTGRES_HOST}
-        POSTGRES_USER: ${POSTGRES_USER}
-        POSTGRES_NAME: ${POSTGRES_NAME}
-        POSTGRES_PORT: ${POSTGRES_PORT}
-
-  - target:
-      name: auth-secret
-    patch: |-
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: auth-secret
-      stringData:
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-        AUTH_SECRET: ${AUTH_SECRET}
-
-  - target:
       name: gateway-configmap
     patch: |-
       apiVersion: v1
@@ -70,9 +46,14 @@ patches:
       metadata:
         name: gateway-configmap
       data:
-        AUTH_SERVICE_ADDRESS: ${AUTH_SERVICE_ADDRESS}
         QUESTIONS_QUEUE: ${QUESTIONS_QUEUE}
+        NOTIFICATIONS_QUEUE: ${NOTIFICATIONS_QUEUE}
         RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+        MONGO_HOST: ${MONGO_HOST}
+        MONGO_PORT: ${MONGO_PORT}
+        MONGO_DB: ${MONGO_DB}
+        MONGO_COLLECTION: ${MONGO_COLLECTION}
+        CLIENT_URL: ${CLIENT_URL}
 
   - target:
       name: questions-configmap
@@ -84,6 +65,7 @@ patches:
       data:
         AUDIO_QUEUE: ${AUDIO_QUEUE}
         QUESTIONS_QUEUE: ${QUESTIONS_QUEUE}
+        NOTIFICATIONS_QUEUE: ${NOTIFICATIONS_QUEUE}
         RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
         MONGO_HOST: ${MONGO_HOST}
         MONGO_PORT: ${MONGO_PORT}
@@ -109,6 +91,7 @@ patches:
         name: video-configmap
       data:
         VIDEO_QUEUE: ${VIDEO_QUEUE}
+        NOTIFICATIONS_QUEUE: ${NOTIFICATIONS_QUEUE}
         RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
         MONGO_HOST: ${MONGO_HOST}
         MONGO_PORT: ${MONGO_PORT}

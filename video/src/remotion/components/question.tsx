@@ -34,7 +34,10 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
         marginTop: "10%",
       }}
     >
-      <div style={{ display: "flex", gap: "1.5rem" }} className="question card">
+      <div
+        style={{ display: "flex", gap: "1.5rem", backgroundColor: `rgb(233 213 255 / 0.9)` }}
+        className="question card"
+      >
         <p className="text">Q:</p>
         <p className="text">{question.question}</p>
       </div>
@@ -45,8 +48,8 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
           className={`answer card ${
             o.id === question.answer && frame > (question.answerOffset - question.offset) * fps
               ? "highlight-answer"
-              : null
-          }`}
+              : "highlight-wrong-answer"
+          } ${!(frame > (question.answerOffset - question.offset) * fps) && "default-answer"}`}
         >
           <p className="text">{o.id}:</p>
           <p className="text">{o.body}</p>

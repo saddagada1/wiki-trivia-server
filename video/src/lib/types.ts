@@ -1,5 +1,3 @@
-import { CSSProperties } from "react";
-
 export interface BaseQuestion {
   question: string;
   options: { id: number; body: string }[];
@@ -26,7 +24,3 @@ export interface Quiz {
   questions: string[];
   audio: AudioWithMetadata[];
 }
-
-export type Styles = {
-  [key in keyof CSSProperties]?: string;
-};

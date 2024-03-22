@@ -1,10 +1,8 @@
 .card {
   padding: 0rem 1.5rem;
-  backdrop-filter: blur(64px);
-  background-color: rgb(255 255 255 / 0.5);
+  background-color: rgb(229 229 229 / 0.9);
   font-weight: 700;
-  border-radius: 1.5rem;
-  border: 6px solid white;
+  border: 2px solid black;
   width: 100%;
 }
 
@@ -22,13 +20,14 @@
 
 .logo-text {
   font-size: 5.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
   text-align: center;
   line-height: 0;
 }
 
 .text {
-  font-size: 2rem;
+  font-size: 1.75rem;
 }
 
 .topic {
@@ -36,6 +35,20 @@
 }
 
 .highlight-answer {
-  background-color: rgb(134 239 172 / 0.8);
-  border-color: rgb(34 197 94);
+  background-color: rgb(190 242 100 / 0.9);
+}
+
+.highlight-wrong-answer {
+  background-color: rgb(254 202 202 / 0.9);
+}
+
+.default-answer {
+  background-color: rgb(199 210 254 / 0.9);
+}
+
+.background {
+  background-image: linear-gradient(#a3a3a3 2px, transparent 2px),
+    linear-gradient(to right, #a3a3a3 2px, transparent 2px);
+  background-size: 32px 32px;
+  background-color: #e5e5e5;
 }

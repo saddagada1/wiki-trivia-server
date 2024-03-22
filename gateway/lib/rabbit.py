@@ -1,21 +1,11 @@
-import pika, json, threading, os
+import pika, json, os
 
-class Connection:
-    _instance = None
-    _lock = threading.Lock()
+connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ.get("RABBIT_MQ_HOST")))
+channel = connection.channel()
 
-    def __new__(cls):
-        if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super().__new__(cls)
-                    cls._instance._connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ.get("RABBIT_MQ_HOST")))
-        return cls._instance
+channel.queue_declare(queue=os.environ.get("QUESTIONS_QUEUE"), durable=True)
 
-    def channel(self):
-        return self._connection.channel()
-
-def publish(channel, message, key):
+def publish(message, key, retry):
     try:
         channel.basic_publish(
             exchange="",
@@ -26,4 +16,9 @@ def publish(channel, message, key):
             )
         )
     except Exception as err:
-        return err
+        if retry:
+            return err
+        else:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ.get("RABBIT_MQ_HOST")))
+            channel = connection.channel()
+            return publish(message, key, True)

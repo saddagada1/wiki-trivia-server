@@ -4,11 +4,11 @@ import { Audio } from "remotion";
 import { useMemo } from "react";
 import { BaseQuestion, QuestionWithMetadata, Quiz as QuizType } from "../../lib/types";
 import Question from "./question";
-import { loadFont as Belanosima } from "@remotion/google-fonts/Belanosima";
+import { loadFont as Display } from "@remotion/google-fonts/Orbitron";
 import { useGsapTimeline } from "../../lib/hooks";
 import gsap from "gsap";
 
-const { fontFamily: bahiana } = Belanosima();
+const { fontFamily: display } = Display();
 
 interface QuizProps {
   quiz: QuizType;
@@ -71,12 +71,12 @@ const Quiz: React.FC<QuizProps> = ({ quiz }) => {
       ))}
       <AbsoluteFill ref={animationScopeRef}>
         <div className="logo-container">
-          <div className="logo card">
-            <p style={{ fontFamily: bahiana }} className="logo-text">
+          <div className="logo card" style={{ backgroundColor: `rgb(190 242 100 / 0.9)` }}>
+            <p style={{ fontFamily: display }} className="logo-text">
               WikiTrivia
             </p>
           </div>
-          <div className="topic card">
+          <div className="topic card" style={{ backgroundColor: `rgb(233 213 255 / 0.9)` }}>
             {frame > audioWithOffsets[audioWithOffsets.length - 1].offset * fps ? (
               <p className="text">Follow to keep playing!</p>
             ) : (

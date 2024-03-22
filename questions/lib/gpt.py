@@ -27,6 +27,15 @@ def generate(message, collection, channel):
 
     questions = []
 
+    channel.basic_publish(
+        exchange="",
+        routing_key=os.environ.get("NOTIFICATIONS_QUEUE"),
+        body=json.dumps({"status": "Creating questions with ChatGPT"}),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent
+        )
+    )
+
     try:
         for chunk in content_chunks:
             completion = client.chat.completions.create(
@@ -59,7 +68,6 @@ def generate(message, collection, channel):
 
         quiz = {
             "topic": message["page"]["title"],
-            "userId": message["user"]["id"],
             "questions": questions
         }
     
@@ -71,6 +79,7 @@ def generate(message, collection, channel):
                 delivery_mode=pika.DeliveryMode.Persistent
             )
         )
+
         collection.insert_one(quiz)
     except Exception as err:
         print(err)
