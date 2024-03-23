@@ -11,6 +11,7 @@ def main():
     channel = connection.channel()
 
     channel.queue_declare(queue=os.environ.get("AUDIO_QUEUE"), durable=True)
+    channel.queue_declare(queue=os.environ.get("VIDEO_QUEUE"), durable=True)
     channel.queue_declare(queue=os.environ.get("NOTIFICATIONS_QUEUE"), durable=True)
 
     def callback(ch, method, __properties__, body):

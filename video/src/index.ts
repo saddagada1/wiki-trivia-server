@@ -43,7 +43,11 @@ const main = async () => {
     `mongodb://${process.env.MONGO_HOST}:${parseInt(process.env.MONGO_PORT!)}`
   );
 
-  await client.connect();
+  try {
+    await client.connect();
+  } catch (error) {
+    console.log(error);
+  }
 
   const db = client.db(process.env.MONGO_DB);
   const collection = db.collection(process.env.MONGO_COLLECTION!);

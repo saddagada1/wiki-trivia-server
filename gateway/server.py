@@ -23,18 +23,22 @@ status = "idle"
 
 @server.route("/videos", methods=["GET"])
 def get():
+    global status
     cursor = collection.find({}).sort('_id', -1).limit(10)
     videos = []
     for video in cursor:
         video['_id'] = str(video['_id'])
         videos.append(video)
 
-    videos_json = json.dumps(videos)
-    response_data = videos_json.encode('utf-8')
-    return {"status": status, "videos": response_data}, 200, {'Content-Type': 'application/json'}
+    response = {"status": status, "videos": videos}
+
+    response_json = json.dumps(response)
+    response_data = response_json.encode('utf-8')
+    return response_data, 200, {'Content-Type': 'application/json'}
     
 @server.route("/generate", methods=["POST"])
 def generate():
+    global status
     if status != "idle":
         return 'server is busy', 503
     
@@ -77,8 +81,10 @@ def generate():
     
 def consume_notifications():
     def callback(__ch__, __method__, __properties__, body):
+        global status;
         message = json.loads(body)
-        if status == "completed":
+        server.logger.debug(message["status"])
+        if message["status"] == "completed":
             status = "idle"
         else:
             status = message["status"]
@@ -91,7 +97,7 @@ def consume_notifications():
 
         channel.basic_consume(queue=os.environ.get("NOTIFICATIONS_QUEUE"), on_message_callback=callback, auto_ack=True)
 
-        print('Waiting for notifications from RabbitMQ...')
+        server.logger.debug('Waiting for notifications from RabbitMQ...')
         channel.start_consuming()
     except Exception as err:
         server.logger.error(err)
