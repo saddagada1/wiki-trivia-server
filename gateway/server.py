@@ -88,7 +88,7 @@ def consume_notifications():
             status = "idle"
         else:
             status = message["status"]
-        socketio.emit('notification', status)
+        socketio.emit('notification', message["status"])
 
     try: 
         connection = pika.BlockingConnection(pika.ConnectionParameters(os.environ.get("RABBIT_MQ_HOST")))
