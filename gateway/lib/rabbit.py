@@ -6,6 +6,9 @@ channel = connection.channel()
 channel.queue_declare(queue=os.environ.get("QUESTIONS_QUEUE"), durable=True)
 
 def publish(message, key, retry):
+    global connection;
+    global channel;
+    
     try:
         channel.basic_publish(
             exchange="",
